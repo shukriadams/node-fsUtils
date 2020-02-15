@@ -1,4 +1,4 @@
-let fs = require('fs-extra'),
+const fs = require('fs-extra'),
     path = require('path'),
     archiver = require('archiver');
 
@@ -6,7 +6,7 @@ let fs = require('fs-extra'),
 /**
  * Gets an array of all files in a folder. Returns either full paths (default) or filenames.
  */
-let readFilesInDirSync = function(dir, fullPath = true){
+const readFilesInDirSync = function(dir, fullPath = true){
     let items = fs.readdirSync(dir)
         results = [];
 
@@ -26,7 +26,7 @@ let readFilesInDirSync = function(dir, fullPath = true){
  * Set fullpath to false for file names only. 
  * Extension mask can be a string or array of strings, must be fill extensions with leading dots.
  */
-let readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = []){
+const readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = []){
     let results = [];
     if (!extensionMask)
         extensionMask = [];
@@ -59,7 +59,7 @@ let readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = []){
 /**
  * Deletes a file or an array of files. Fullpaths required. 
  */
-let unlinkAllSync = function(files){
+const unlinkAllSync = function(files){
     if (typeof files === 'string') 
         files = [files];
 
@@ -71,7 +71,7 @@ let unlinkAllSync = function(files){
 /**
  * Zips a directory and its contents.
  */
-let zipDir = async function(inPath, outPath){
+const zipDir = async function(inPath, outPath){
 
     return new Promise(function(resolve, reject){
         try {
@@ -112,7 +112,16 @@ let zipDir = async function(inPath, outPath){
 }
 
 
+/** 
+ * Extracts filename without extension from full path
+ */
+const fileNameWithoutExtension = function(fullPath){
+    return path.basename(fullPath, path.extname(fullPath));
+}
+
+
 module.exports = {
+    fileNameWithoutExtension,
     zipDir,
     unlinkAllSync,
     readFilesInDirSync,
