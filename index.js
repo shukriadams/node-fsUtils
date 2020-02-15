@@ -120,7 +120,17 @@ const fileNameWithoutExtension = function(fullPath){
 }
 
 
+/** 
+ * Extracts full path without extension from raw full path. This is useful for dynamically loading modules from 
+ * a filesystem file lookup list.
+ */
+const fullPathWithoutExtension = function(fullPath){
+    return path.join(path.dirname(fullPath), fileNameWithoutExtension(fullPath));
+}
+
+
 module.exports = {
+    fullPathWithoutExtension,
     fileNameWithoutExtension,
     zipDir,
     unlinkAllSync,
