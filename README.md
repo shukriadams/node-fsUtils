@@ -9,7 +9,7 @@ Add to package.json :
     {
         {
             "dependencies": {
-                "madscience-fsUtils"": "https://github.com/shukriadams/node-fsUtils.git#0.0.1"
+                "madscience-fsUtils": "https://github.com/shukriadams/node-fsUtils.git#0.0.1"
         }
     }
 
