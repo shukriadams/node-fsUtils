@@ -24,7 +24,7 @@ const readFilesInDirSync = function(dir, fullPath = true){
 /**
  * Gets all files nested under a path. 
  * Set fullpath to false for file names only. 
- * Extension mask can be a string or array of strings, must be fill extensions with leading dots.
+ * Extension mask can be a string or array of strings, must be full extensions with leading dots, example ".js", not "js".
  */
 const readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = []){
     let results = [];
