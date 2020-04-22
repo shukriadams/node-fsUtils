@@ -1,4 +1,5 @@
-const fs = require('fs-extra'),
+const 
+    fs = require('fs-extra'),
     path = require('path'),
     archiver = require('archiver');
 
@@ -22,9 +23,27 @@ const readFilesInDirSync = function(dir, fullPath = true){
 
 
 /**
+ * Gets an array of all files in a folder. Returns either full paths (default) or filenames.
+ */
+const readFilesInDir = async function(dir, fullPath = true){
+    let items = fs.readdirSync(dir)
+        results = [];
+
+    for(let item of items){
+        if (!(await fs.promises.lstat(path.join(dir, item))).isFile())
+            continue;
+
+        results.push(fullPath ? path.join(dir, item) : item);
+    }
+
+    return results;
+}
+
+
+/**
  * Gets all files nested under a path. 
  * Set fullpath to false for file names only. 
- * Extension mask can be a string or array of strings, must be full extensions with leading dots, example ".js", not "js".
+ * Extension mask can be a string or array of strings, must be fill extensions with leading dots.
  */
 const readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = []){
     let results = [];
@@ -57,6 +76,41 @@ const readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = [])
 
 
 /**
+ * Gets all files nested under a path. 
+ * Set fullpath to false for file names only. 
+ * Extension mask can be a string or array of strings, must be fill extensions with leading dots.
+ */
+const readFilesUnderDir = async function(dir, fullPath = true, extensionMask = []){
+    let results = [];
+    if (!extensionMask)
+        extensionMask = [];
+
+    if (typeof extensionMask === 'string')
+        extensionMask= [extensionMask];
+
+    async function processDirectory(dir){
+
+        let items = await fs.promises.readdir(dir)
+
+        for (let item of items){
+            let itemFullPath = path.join(dir, item);
+            let stat = await fs.promises.lstat(itemFullPath);
+            if (stat.isDirectory())
+                await processDirectory(itemFullPath);
+            else if(stat.isFile()){
+                if (extensionMask.length && !extensionMask.includes(path.extname(item)))
+                    continue;
+                results.push(fullPath ? itemFullPath : item);
+            }
+        }
+    };
+
+    await processDirectory(dir)
+    return results;
+}
+
+
+/**
  * Deletes a file or an array of files. Fullpaths required. 
  */
 const unlinkAllSync = function(files){
@@ -65,6 +119,18 @@ const unlinkAllSync = function(files){
 
     for (let file of files)
         fs.unlinkSync(file);
+}
+
+
+/**
+ * Deletes a file or an array of files. Fullpaths required. 
+ */
+const unlinkAll = async function(files){
+    if (typeof files === 'string') 
+        files = [files];
+
+    for (let file of files)
+        await fs.promises.unlink(file);
 }
 
 
@@ -133,7 +199,10 @@ module.exports = {
     fullPathWithoutExtension,
     fileNameWithoutExtension,
     zipDir,
+    unlinkAll,
     unlinkAllSync,
+    readFilesInDir,
     readFilesInDirSync,
+    readFilesUnderDir,
     readFilesUnderDirSync
 }
