@@ -111,6 +111,38 @@ const readFilesUnderDir = async function(dir, fullPath = true, extensionMask = [
 
 
 /**
+ * list immediate child directories of a given directory
+ */
+let getChildDirs = async (root, returnFullPath = true)=>{
+    return new Promise(async (resolve, reject)=>{
+        try {
+            let results = [];
+            
+            fs.readdir(root, async (err, items)=>{
+                if (err)
+                    return reject(err);
+
+                for (let item of items){
+                    const itemPath = path.join(root, item),
+                        stat = await fs.promises.lstat(itemPath);
+            
+                    if (!stat.isDirectory())
+                        continue;
+            
+                    results.push(returnFullPath ? itemPath : item);
+                }
+            
+                resolve(results);
+            })
+
+        }catch(ex) {
+            reject(ex);
+        }
+    })
+}
+
+
+/**
  * Deletes a file or an array of files. Fullpaths required. 
  */
 const unlinkAllSync = function(files){
@@ -198,6 +230,7 @@ const fullPathWithoutExtension = function(fullPath){
 module.exports = {
     fullPathWithoutExtension,
     fileNameWithoutExtension,
+    getChildDirs,
     zipDir,
     unlinkAll,
     unlinkAllSync,
