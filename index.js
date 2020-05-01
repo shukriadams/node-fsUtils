@@ -1,7 +1,7 @@
 const 
-    fs = require('fs-extra'),
-    path = require('path'),
-    archiver = require('archiver');
+    fs = require('fs-extra')
+    path = require('path')
+    archiver = require('archiver')
 
 
 /**
@@ -46,32 +46,32 @@ const readFilesInDir = async function(dir, fullPath = true){
  * Extension mask can be a string or array of strings, must be fill extensions with leading dots.
  */
 const readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = []){
-    let results = [];
-    if (!extensionMask)
-        extensionMask = [];
+    let results = []
 
     if (typeof extensionMask === 'string')
-        extensionMask= [extensionMask];
+        extensionMask = [extensionMask]
 
     function processDirectory(dir){
 
         let items = fs.readdirSync(dir)
 
         for (let item of items){
-            let itemFullPath = path.join(dir, item);
-            let stat = fs.lstatSync(itemFullPath);
+            const itemFullPath = path.join(dir, item)
+                stat = fs.lstatSync(itemFullPath)
+
             if (stat.isDirectory())
-                processDirectory(itemFullPath);
+                processDirectory(itemFullPath)
             else if(stat.isFile()){
                 if (extensionMask.length && !extensionMask.includes(path.extname(item)))
-                    continue;
-                results.push(fullPath ? itemFullPath : item);
+                    continue
+
+                results.push(fullPath ? itemFullPath : item)
             }
         }
-    };
+    }
 
     processDirectory(dir)
-    return results;
+    return results
 }
 
 
@@ -81,32 +81,32 @@ const readFilesUnderDirSync = function(dir, fullPath = true, extensionMask = [])
  * Extension mask can be a string or array of strings, must be fill extensions with leading dots.
  */
 const readFilesUnderDir = async function(dir, fullPath = true, extensionMask = []){
-    let results = [];
-    if (!extensionMask)
-        extensionMask = [];
+    let results = []
 
     if (typeof extensionMask === 'string')
-        extensionMask= [extensionMask];
+        extensionMask = [extensionMask]
 
     async function processDirectory(dir){
 
         let items = await fs.promises.readdir(dir)
 
         for (let item of items){
-            let itemFullPath = path.join(dir, item);
-            let stat = await fs.promises.lstat(itemFullPath);
+            const itemFullPath = path.join(dir, item)
+                stat = await fs.promises.lstat(itemFullPath)
+
             if (stat.isDirectory())
                 await processDirectory(itemFullPath);
             else if(stat.isFile()){
                 if (extensionMask.length && !extensionMask.includes(path.extname(item)))
                     continue;
-                results.push(fullPath ? itemFullPath : item);
+
+                results.push(fullPath ? itemFullPath : item)
             }
         }
-    };
+    }
 
     await processDirectory(dir)
-    return results;
+    return results
 }
 
 
@@ -227,6 +227,35 @@ const fullPathWithoutExtension = function(fullPath){
 }
 
 
+/**
+ * Gets files in a folder as an array, ready for common.js require
+ */
+const getFilesAsModulePaths = async directory =>{
+    const 
+        modules = []
+        items = await readFilesUnderDir(directory, true, ['.js'])
+
+    for (let item of items )
+        modules.push(fullPathWithoutExtension(item))
+
+    return modules
+}
+
+
+/**
+ * Gets files in a folder as an array, ready for common.js require
+ */
+const getFilesAsModulePathsSync = directory =>{
+
+    const modules = []
+
+    for (let item of readFilesUnderDirSync(directory, true, ['.js']))
+        modules.push(fullPathWithoutExtension(item))
+
+    return modules
+}
+
+
 module.exports = {
     fullPathWithoutExtension,
     fileNameWithoutExtension,
@@ -237,5 +266,7 @@ module.exports = {
     readFilesInDir,
     readFilesInDirSync,
     readFilesUnderDir,
-    readFilesUnderDirSync
+    readFilesUnderDirSync,
+    getFilesAsModulePaths,
+    getFilesAsModulePathsSync
 }
