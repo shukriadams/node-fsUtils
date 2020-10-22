@@ -1,6 +1,6 @@
 const 
-    fs = require('fs-extra')
-    path = require('path')
+    fs = require('fs-extra'),
+    path = require('path'),
     archiver = require('archiver')
 
 
@@ -30,7 +30,7 @@ const readFilesInDir = async function(dir, fullPath = true){
         results = [];
 
     for(let item of items){
-        if (!(await fs.promises.lstat(path.join(dir, item))).isFile())
+        if (!(await fs.lstat(path.join(dir, item))).isFile())
             continue;
 
         results.push(fullPath ? path.join(dir, item) : item);
@@ -88,11 +88,11 @@ const readFilesUnderDir = async function(dir, fullPath = true, extensionMask = [
 
     async function processDirectory(dir){
 
-        let items = await fs.promises.readdir(dir)
+        let items = await fs.readdir(dir)
 
         for (let item of items){
             const itemFullPath = path.join(dir, item)
-                stat = await fs.promises.lstat(itemFullPath)
+                stat = await fs.lstat(itemFullPath)
 
             if (stat.isDirectory())
                 await processDirectory(itemFullPath);
@@ -124,7 +124,7 @@ let getChildDirs = async (root, returnFullPath = true)=>{
 
                 for (let item of items){
                     const itemPath = path.join(root, item),
-                        stat = await fs.promises.lstat(itemPath);
+                        stat = await fs.lstat(itemPath);
             
                     if (!stat.isDirectory())
                         continue;
@@ -162,7 +162,7 @@ const unlinkAll = async function(files){
         files = [files];
 
     for (let file of files)
-        await fs.promises.unlink(file);
+        await fs.remove(file);
 }
 
 
