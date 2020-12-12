@@ -1,5 +1,4 @@
-const 
-    fs = require('fs-extra'),
+const fs = require('fs-extra'),
     path = require('path'),
     archiver = require('archiver')
 
@@ -169,44 +168,70 @@ const unlinkAll = async function(files){
 /**
  * Zips a directory and its contents.
  */
-const zipDir = async function(inPath, outPath){
+const zipDir = async (inPath, outPath)=>{
 
-    return new Promise(function(resolve, reject){
+    return new Promise((resolve, reject)=>{
         try {
 
-            var output = fs.createWriteStream(outPath);
-            var archive = archiver('zip', {
-                zlib: { level: 5 } 
-            });
+            const output = fs.createWriteStream(outPath),
+                archive = archiver('zip', {
+                    zlib: { level: 5 } 
+                })
 
-            output.on('close', function() {
-                resolve();
-            });
+            output.on('close', ()=>{
+                resolve()
+            })
 
-            output.on('end', function() {
+            output.on('end', ()=>{
                 // alert on draining done here
-            });
+            })
 
-            archive.on('warning', function(err) {
+            archive.on('warning', (err)=>{
                 if (err.code === 'ENOENT') {
-                    console.log(err);
+                    console.log(err)
                 } else {
-                    reject(err);
+                    reject(err)
                 }
-            });
+            })
 
-            archive.on('error', function(err) {
-                reject(err);
-            });
+            archive.on('error', (err)=>{
+                reject(err)
+            })
 
-            archive.pipe(output);
-            archive.directory(inPath, false);
-            archive.finalize();
+            archive.pipe(output)
+            archive.directory(inPath, false)
+            archive.finalize()
 
         } catch(ex){
-            reject(ex);
+            reject(ex)
         }
-    });
+    })
+}
+
+
+/**
+ * 
+*/
+const unzipToDirectory = async (zipFile, toFolder)=>{
+    return new Promise(function(resolve, reject){
+        try {
+            const unzipLib = require('unzip-stream'),
+                unzipExtractor = unzipLib.Extract({ path: toFolder })
+
+            unzipExtractor.on('error', (err)=>{
+                reject(err)
+            })
+
+            unzipExtractor.on('close', async ()=>{
+                resolve()
+            })
+
+            fs.createReadStream(zipFile).pipe(unzipExtractor)
+
+        } catch(ex) {
+            reject(ex)
+        }
+    })
 }
 
 
@@ -256,7 +281,9 @@ const getFilesAsModulePathsSync = directory =>{
 }
 
 
+
 module.exports = {
+    unzipToDirectory,
     fullPathWithoutExtension,
     fileNameWithoutExtension,
     getChildDirs,
