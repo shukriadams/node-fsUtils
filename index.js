@@ -8,16 +8,16 @@ const fs = require('fs-extra'),
  */
 const readFilesInDirSync = function(dir, fullPath = true){
     let items = fs.readdirSync(dir)
-        results = [];
+        results = []
 
     for(let item of items){
         if (!fs.lstatSync(path.join(dir, item)).isFile())
-            continue;
+            continue
 
-        results.push(fullPath ? path.join(dir, item) : item);
+        results.push(fullPath ? path.join(dir, item) : item)
     }
 
-    return results;
+    return results
 }
 
 
@@ -26,13 +26,13 @@ const readFilesInDirSync = function(dir, fullPath = true){
  */
 const readFilesInDir = async function(dir, fullPath = true){
     let items = fs.readdirSync(dir)
-        results = [];
+        results = []
 
     for(let item of items){
         if (!(await fs.lstat(path.join(dir, item))).isFile())
-            continue;
+            continue
 
-        results.push(fullPath ? path.join(dir, item) : item);
+        results.push(fullPath ? path.join(dir, item) : item)
     }
 
     return results;
@@ -94,10 +94,10 @@ const readFilesUnderDir = async function(dir, fullPath = true, extensionMask = [
                 stat = await fs.lstat(itemFullPath)
 
             if (stat.isDirectory())
-                await processDirectory(itemFullPath);
+                await processDirectory(itemFullPath)
             else if(stat.isFile()){
                 if (extensionMask.length && !extensionMask.includes(path.extname(item)))
-                    continue;
+                    continue
 
                 results.push(fullPath ? itemFullPath : item)
             }
@@ -110,32 +110,39 @@ const readFilesUnderDir = async function(dir, fullPath = true, extensionMask = [
 
 
 /**
- * list immediate child directories of a given directory
+ * list immediate child directories of a given directory. Directories can be sorted by standard stat properties.
  */
-let getChildDirs = async (root, returnFullPath = true)=>{
+let getChildDirs = async (root, returnFullPath = true, sortBy = null)=>{
     return new Promise(async (resolve, reject)=>{
         try {
-            let results = [];
+            let results = []
             
             fs.readdir(root, async (err, items)=>{
                 if (err)
-                    return reject(err);
+                    return reject(err)
 
-                for (let item of items){
+                for (const item of items){
                     const itemPath = path.join(root, item),
-                        stat = await fs.lstat(itemPath);
+                        stat = await fs.lstat(itemPath)
             
                     if (!stat.isDirectory())
-                        continue;
-            
-                    results.push(returnFullPath ? itemPath : item);
+                        continue
+
+                    results.push({ path : returnFullPath ? itemPath : item, sortBy : stat[sortBy] })
                 }
-            
-                resolve(results);
+
+                if (sortBy)
+                    results = results.sort((a, b)=>{
+                        return a.sortBy > b.sortBy ? 1 :
+                            b.sortBy > a.sortBy ? -1 :
+                            0
+                    })
+
+                resolve(results.map(result => result.path))
             })
 
-        }catch(ex) {
-            reject(ex);
+        } catch(ex) {
+            reject(ex)
         }
     })
 }
@@ -149,7 +156,7 @@ const unlinkAllSync = function(files){
         files = [files];
 
     for (let file of files)
-        fs.unlinkSync(file);
+        fs.unlinkSync(file)
 }
 
 
@@ -158,10 +165,10 @@ const unlinkAllSync = function(files){
  */
 const unlinkAll = async function(files){
     if (typeof files === 'string') 
-        files = [files];
+        files = [files]
 
     for (let file of files)
-        await fs.remove(file);
+        await fs.remove(file)
 }
 
 
