@@ -288,8 +288,52 @@ const getFilesAsModulePathsSync = directory =>{
 }
 
 
+/**
+ * Walks through a file one line at a time.
+ *
+ * @param {string} Path to file to step through
+ * @param {function} onLine : callback triggered per line read. Callback parameters are ({string} line, {function} resume), resume must be called to proceed to next line.
+ * @returns {null} Exits when finished
+ */
+const lineStepThroughFile = async (path, onLine)=>{
+    if (!path)
+        throw  `path argument required`
+
+    if (!onLine)
+        throw `callback required`
+        
+    if (!fs.pathExists(path))
+        throw `Path "${path}" does not exist`
+        
+    return new Promise((resolve, reject)=>{
+        try {
+            const lineReader = require('readline').createInterface({
+                input: require('fs').createReadStream(path)
+            })
+
+            lineReader.on('line', (line) => {
+
+                // send line back via callback, along with our own callback. Receiver must call this function to continue stepping
+                onLine(line, ()=>{
+                    lineReader.resume()
+                })
+                
+                // pause reader, wait for our callback to resume
+                lineReader.pause()
+            })
+
+            lineReader.on('close', () =>{
+                resolve()
+            })
+
+        } catch(ex){
+            reject(ex)
+        }
+    })
+}
 
 module.exports = {
+    lineStepThroughFile,
     unzipToDirectory,
     fullPathWithoutExtension,
     fileNameWithoutExtension,
