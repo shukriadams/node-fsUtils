@@ -337,7 +337,7 @@ const lineStepThroughFile = async (path, onLine)=>{
  * Reads and returns a section of a textfile. Returns empty string when the file is overrun.
  * untested
  */
-const readTextFileChunk = async (path, chunkIndex = 0, chunkSize = 1024){
+const readTextFileChunk = async (path, chunkIndex = 0, chunkSize = 1024)=>{
     return new Promise((resolve, reject)=>{
         try {
             let fs = require('fs'),
