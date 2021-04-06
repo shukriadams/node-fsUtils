@@ -289,6 +289,26 @@ const getFilesAsModulePathsSync = directory =>{
 
 
 /**
+ * Copies directry and all its content to target. Note : wrote this because I had problems with fs-extra's dir copy 
+ * corrupting data in windows on vagrant.
+ */
+async function copyDirectory(source, target){
+    const sourceFiles = await readFilesUnderDir(source)
+
+    for (let sourceFile of sourceFiles){
+        // get path under the root we're copying from
+        sourceFile = sourceFile.replace(source, '')
+        // calculate target path using path fragment under target root
+        const sourceFileFull = path.join(source, sourceFile),
+            targetPath = path.join(target, sourceFile)
+
+        await fs.ensureDir(path.dirname(targetPath))
+        fs.createReadStream(sourceFileFull).pipe(fs.createWriteStream(targetPath))
+    }
+}
+
+
+/**
  * Walks through a file one line at a time.
  *
  * @param {string} Path to file to step through
@@ -360,6 +380,7 @@ const readTextFileChunk = async (path, chunkIndex = 0, chunkSize = 1024)=>{
 module.exports = {
     readTextFileChunk,
     lineStepThroughFile,
+    copyDirectory,
     unzipToDirectory,
     fullPathWithoutExtension,
     fileNameWithoutExtension,
