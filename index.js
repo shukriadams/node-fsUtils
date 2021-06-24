@@ -12,27 +12,21 @@ module.exports = {
         return new Promise((resolve, reject)=>{
             try {
                 const glob = require('glob'),
+                    MultiStream = require('multistream'),
                     fs = require('fs') 
 
                 glob(find, globOptions, (err, files) => {
                     if (err)
                         return reject(err)
 
-                    const outStream = fs.createWriteStream(output)
+                    let outStream = fs.createWriteStream(output),
+                        streams = []
 
-                    files.forEach((file, i)=>{
-                        const readStream = fs.createReadStream(file)
-                        readStream.pipe(outStream)
-                        readStream.on('end', ()=>{
-                            
-                            if (i < files.length - 1)
-                               return
+                    for (const file of files)
+                        streams.push(fs.createReadStream(file))
 
-                            outStream.end()
-                            resolve(files)
-                        })
-                    })
-
+                    new MultiStream(streams).pipe(outStream)
+                    resolve(files)
                 })
             } catch (ex){
                 reject(ex)
