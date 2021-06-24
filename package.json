@@ -10,6 +10,7 @@
         "url" : "https://github.com/shukriadams/node-fsUtils.git"
     },
     "dependencies": {
+        "multistream" : "4.1.0",
         "archiver": "3.0.0",
         "glob" : "7.1.7",
         "unzip-stream": "0.3.1",
