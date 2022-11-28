@@ -3,6 +3,15 @@ const fs = require('fs-extra'),
 
 module.exports = {
     
+    
+    /**
+     * Converts a windows path to unix format
+     */
+    toUnixPath(winpath){
+        return winpath.replace(/\\/g, '/')
+    },
+    
+    
     /**
      * Concatenates all files found by "find" glob
      * find : glob string
