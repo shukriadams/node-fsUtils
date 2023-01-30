@@ -135,27 +135,11 @@ module.exports = {
 
     /**
      * 
-    */
+     */
      async unzipToDirectory(zipFile, toFolder){
-        return new Promise(function(resolve, reject){
-            try {
-                const unzipLib = require('unzip-stream'),
-                    unzipExtractor = unzipLib.Extract({ path: toFolder })
-
-                unzipExtractor.on('error', (err)=>{
-                    reject(err)
-                })
-
-                unzipExtractor.on('close', async ()=>{
-                    resolve()
-                })
-
-                fs.createReadStream(zipFile).pipe(unzipExtractor)
-
-            } catch(ex) {
-                reject(ex)
-            }
-        })
+        const unzipper = require('unzipper')
+        const directory = await unzipper.Open.file(zipFile)
+        await directory.extract({ path: toFolder })
     },
 
 
